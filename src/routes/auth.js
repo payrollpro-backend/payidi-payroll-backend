@@ -244,5 +244,38 @@ router.post('/reset-password-confirm', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+// ✅ TEMPORARY ROUTE: CREATE INITIAL ADMIN USER
+// Use once, then DELETE this route and redeploy.
+router.post('/admin/create-initial', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    // Check if an admin already exists
+    const existingAdmin = await User.findOne({ role: 'admin' });
+    if (existingAdmin) {
+      return res.status(400).json({ error: 'Admin already exists. This route should now be removed.' });
+    }
+
+    // Create the admin user
+    const admin = await User.create({
+      email,
+      password,        // assuming your User model hashes password in a pre-save hook
+      role: 'admin'
+    });
+
+    return res.json({
+      message: 'Initial admin user created successfully.',
+      adminId: admin._id,
+      email: admin.email
+    });
+  } catch (err) {
+    console.error('Error creating initial admin:', err);
+    return res.status(500).json({ error: 'Server error creating admin' });
+  }
+});
 
 module.exports = router;
