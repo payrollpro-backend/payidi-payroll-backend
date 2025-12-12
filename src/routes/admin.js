@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const Employee = require('../models/Employee');
 const { requireAuth } = require('../middleware/auth');
 
-const router = express.Router(); // CORRECT: Router initialized here
+const router = express.Router(); 
 
 // Helper: ensure the current user is an ADMIN
 function ensureAdmin(req, res) {
@@ -170,7 +170,9 @@ router.post('/employers', async (req, res) => {
       message: 'Employer created successfully.',
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    // 💥 ENHANCED LOGGING HERE
+    console.error('Employer POST /employers CRASH:', err.stack);
+    res.status(500).json({ error: err.message || 'Server error during employer creation' });
   }
 });
 
